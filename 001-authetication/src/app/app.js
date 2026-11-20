@@ -1,6 +1,7 @@
 import express from 'express'
 const app=express();
 import jwt from "jsonwebtoken"
+import userModel from '../models/user.models.js';
 app.use(express.json());
 
 app.get("/api",(req,res)=>
@@ -10,23 +11,37 @@ app.get("/api",(req,res)=>
     })
 })
 
-app.post("/api/auth/register",(req,res)=>
+app.post("/api/auth/register",async(req,res)=>
 {
     const {email,name,password}=req.body;
+    const user=await userModel.create({
+        email,
+        name,
+        password
+    });
     const token=jwt.sign(
         {
-
-    },
+               id:user._id
+        }, 
     "XfKPfQZXnOnwiZgXarHCtigl8kqGyMd3vj45ESCT0bn"//jwt secret
     )
     res.status(201).json({
         message:"user created successfully",
         data:{
             user:{
-                email,name
+                name:user.name,
+                email:user.email,
+                id: user._id
             },
-            token
+            token:token
         }
     })
 });
+
+
+app.get("/api/auth/me",async(req,res)=>
+{
+    const authHeader=req.headers.authorization;
+    console.log(authHeader);
+})
 export default app;
