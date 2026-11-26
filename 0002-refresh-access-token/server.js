@@ -1,21 +1,25 @@
-import dotenv from 'dotenv'
-dotenv.config();
-const { default: app } = await import("./src/app/app.js");
-const PORT=process.env.PORT||3000;
+import dotenv from 'dotenv';
 
-const startServer=async()=>
-{
-    try
-    {
-        app.listen(PORT,()=>
-        {
-            console.log(`Server is running at ${PORT}`);
-        })
-    }
-    catch(error)
-    {
-        console.log("Server startup",error.message);
+dotenv.config();
+
+const startServer = async () => {
+    try {
+        const { default: app } = await import("./src/app/app.js");
+
+        const { default: connectDB } = await import("./src/config/db.js");
+
+        const { default: config } = await import("./src/config/config.js");
+
+        await connectDB();
+
+        app.listen(config.PORT, () => {
+            console.log(`Server is listening at ${config.PORT}`);
+        });
+
+    } catch (error) {
+        console.log("Server startup error:", error.message);
         process.exit(1);
     }
 };
+
 startServer();
