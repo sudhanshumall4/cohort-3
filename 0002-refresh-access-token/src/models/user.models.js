@@ -11,7 +11,7 @@ const userSchema=new mongoose.Schema({
     {
         type:String,
         required:true,
-        unique:true
+        unique:true,
         trim:true,
         validate:[
             validator.isEmail,
@@ -28,3 +28,5 @@ const userSchema=new mongoose.Schema({
         type:String,
     }
 })
+const userModel=mongoose.model("users2",userSchema);
+export default userModel;
