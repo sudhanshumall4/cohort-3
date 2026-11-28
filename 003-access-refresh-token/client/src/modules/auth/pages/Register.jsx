@@ -1,41 +1,59 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router";
+import useApi  from "../../../shared/api";
 
 const Register = () => {
-
     const navigate = useNavigate();
-
+    const api = useApi();
     const { setUser } = useContext(AuthContext);
-
     const [form, setForm] = useState({
         name: "",
         email: "",
         password: ""
     });
-
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
     const handleChange = (e) => {
         setForm({
             ...form,
             [e.target.name]: e.target.value
         });
     };
-
-    const handleSubmit = (e) => {
-
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
+        setLoading(true);
 
-        setUser({
-            name: form.name,
-            email: form.email
-        });
+        try {
 
-        navigate("/profile");
+            const response = await api.post("/auth/register", form);
+            console.log(response.data);
+            setUser(response.data.data.user);
+            navigate("/profile");
+
+        } catch (err) {
+
+            setError(
+                err.response?.data?.message ||
+                err.message ||
+                "Registration failed"
+            );
+
+        } finally {
+
+            setLoading(false);
+
+        }
     };
 
     return (
         <div>
             <h1>Register</h1>
+
+            {error && (
+                <p style={{ color: "red" }}>{error}</p>
+            )}
 
             <form onSubmit={handleSubmit}>
 
@@ -67,8 +85,8 @@ const Register = () => {
                     required
                 />
 
-                <button type="submit">
-                    Register
+                <button type="submit" disabled={loading}>
+                    {loading ? "Registering..." : "Register"}
                 </button>
 
             </form>
